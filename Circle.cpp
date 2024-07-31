@@ -1,26 +1,47 @@
 #include <iostream>
 #include <vector>
 
-class Circle {
+class Circle{
 private :
-	std::vector<double> position;
-	double speed;
+	std::vector<float> position;
+	std::vector<float> velocity;
+	std::vector<float> acceleration;
 	int radius;
 public :
-	Circle(double x, double y, double z, int radius1, double speed1) 
-		: position({ x, y, z }),  // Initialize position vector
-		  radius(radius1),      // Initialize radius
-		  speed(speed1)         // Initialize speed
+	Circle(std::vector<float> pos, std::vector<float> vel, std::vector<float> acc, int radius1)
+		: position(pos),  // Initialize position vector
+		velocity(vel),         // Initialize speed
+		acceleration(acc),
+		radius(radius1)
 	{
 	};
-	Circle(double x, double y, int radius1, double speed1) 
-		: position({ x, y, 0 }),  // Initialize position vector
-		radius(radius1),      // Initialize radius
-		speed(speed1)         // Initialize speed
+	Circle(int radius1) 
+		: position({ 0, 0, 0 }),  // Initialize position vector
+		velocity({0, 0, 0}),         // Initialize speed
+		acceleration({ 0, 0, 0 }),
+		radius(radius1)
 	{
 	};
+	void SetPos(std::vector<float> position1) {
+		position = position1;
+	}
+	void SetVel(std::vector<float> position1) {
+		velocity = position1;
+	}
+	void SetAcc(std::vector<float> position1) {
+		acceleration = position1;
+	}
+	std::vector<float> GetPos() {
+		return position;
+	}
+	std::vector<float> GetVel() {
+		return velocity;
+	}
+	std::vector<float> GetAcc() {
+		return acceleration;
+	}
 	double GetDistance(Circle one, Circle two) {
-		double sum = 0;
+		float sum = 0;
 		sum += std::pow(one.position[0] - two.position[0], 2);
 		sum += std::pow(one.position[1] - two.position[1], 2);
 		sum += std::pow(one.position[2] - two.position[2], 2);

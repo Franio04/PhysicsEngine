@@ -1,9 +1,6 @@
 #include "Physics.h"
-static void cursorPositionCallback(GLFWwindow* window, double xpos, double ypos) {//supposed to work only in the window, but unfortunanetly it work in other places
-    std::cout << xpos << " : " << ypos << std::endl;
-}
-void cursorEnterCallback();//supposed to do the above in the window only
 void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
+void cursorPositionCallback(GLFWwindow* window, double xpos, double ypos);
 int main()
 {
     // glfw: initialize and configure
@@ -40,7 +37,6 @@ int main()
     glfwSetCursorPosCallback(window, cursorPositionCallback);
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
     glfwSetMouseButtonCallback(window, mouseButtonCallback);
-    glfwSetCursorPosCallback(window, cursorPositionCallback);
     // build and compile our shader program
     // ------------------------------------
     // vertex shader
@@ -86,9 +82,14 @@ int main()
     float vertices[] = {
         -0.5f, -0.5f, 0.0f, // left  
          0.5f, -0.5f, 0.0f, // right 
+         0.0f,  0.5f, 0.0f  // top
+        /* TRIANGE
+        -0.5f, -0.5f, 0.0f, // left  
+         0.5f, -0.5f, 0.0f, // right 
          0.0f,  0.5f, 0.0f  // top   
+         */
     };
-
+    
     unsigned int VBO, VAO;
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
@@ -119,6 +120,37 @@ int main()
         // input
         // -----
         processInput(window);
+        if (mousePressCounter == 3) {
+            std::cout << verticesGlobal[0] << " : " << verticesGlobal[1] << std::endl;
+            std::cout << verticesGlobal[3] << " : " << verticesGlobal[4] << std::endl;
+            std::cout << verticesGlobal[6] << " : " << verticesGlobal[7] << std::endl;
+            glGenVertexArrays(1, &VAO);
+            glGenBuffers(1, &VBO);
+            glBindVertexArray(VAO);
+
+            glBindBuffer(GL_ARRAY_BUFFER, VBO);
+            glBufferData(GL_ARRAY_BUFFER, sizeof(verticesGlobal), verticesGlobal, GL_STATIC_DRAW);
+
+            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+            glEnableVertexAttribArray(0);
+            glBindBuffer(GL_ARRAY_BUFFER, 0);
+            glBindVertexArray(0);
+            glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+            glClear(GL_COLOR_BUFFER_BIT);
+            glfwSwapBuffers(window);
+            glfwPollEvents();
+            /*   OLD CODE
+            glBindBuffer(GL_ARRAY_BUFFER, VBO);
+            glBufferData(GL_ARRAY_BUFFER, sizeof(verticesGlobal), verticesGlobal, GL_STATIC_DRAW);
+            //glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+            //glEnableVertexAttribArray(0);
+            //glBindBuffer(GL_ARRAY_BUFFER, 0);
+            //glBindVertexArray(0);
+            mousePressCounter = 0;
+            */
+            mousePressCounter = 0;
+        }
+
 
         // render
         // ------
@@ -169,5 +201,27 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
     if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
         std::cout << "Right button Pressed" << std::endl;
+        if (mousePressCounter < 3) {
+            glfwGetCursorPos(window, &xpos, &ypos);
+            int windowWidth = 0;
+            int windowHeight = 0;
+            glfwGetWindowSize(window, &windowWidth, &windowHeight);
+            float ndcX = (float)xpos / windowWidth * 2.0f - 1.0f;
+            float ndcY = -(float)ypos / windowHeight * 2.0f + 1.0f;
+            verticesGlobal[mousePressCounter * 3] = ndcX;
+            verticesGlobal[mousePressCounter * 3 + 1] = ndcY;
+            //verticesGlobal[mousePressCounter * 3 + 2] = 0.0f;
+            std::cout << "xpos: " << xpos << ", ypos: " << ypos << std::endl;
+            std::cout << "windowWidth: " << windowWidth << ", windowHeight: " << windowHeight << std::endl;
+
+
+
+            mousePressCounter++;
+
+        } 
     }
-} 
+    
+}
+void cursorPositionCallback(GLFWwindow* window, double xpos, double ypos) {
+    std::cout << xpos << " : " << ypos << std::endl;
+}
